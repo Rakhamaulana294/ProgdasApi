@@ -9,7 +9,6 @@ async function ambildata() {
     if (!response.ok) throw new Error("File user.json tidak merespon");
     user = await response.json();
   } catch (error) {
-    // Jika eror, biarkan array tetap kosong agar tidak merusak fungsi login utama
     console.warn("Info: user.json tidak terbaca atau belum dibuat, menggunakan akun admin lokal.");
     user = []; 
   }
@@ -21,9 +20,8 @@ ambildata();
 // 2. Fungsi utama penanganan login
 async function login() {
   const messageDiv = document.getElementById('message');
-  if (messageDiv) messageDiv.innerHTML = ""; // Bersihkan pesan eror lama
+  if (messageDiv) messageDiv.innerHTML = ""; 
 
-  // Jaga-jaga jika proses async ambildata belum selesai saat tombol diklik
   if (user.length === 0) {
     await ambildata();
   }
@@ -32,7 +30,6 @@ async function login() {
   const passwordInput = document.getElementById("password").value.trim();
   let ditemukan = false;
 
-  // Validasi Input Kosong
   if (!emailInput || !passwordInput) {
     if (messageDiv) {
       messageDiv.innerHTML = "<span class='text-red-500 text-xs font-medium'>Email dan Password tidak boleh kosong!</span>";
@@ -40,11 +37,11 @@ async function login() {
     return;
   }
 
-  // A. Pengecekan Akun Utama/Admin Manual (PASTI JALAN)
+  // Pengecekan Akun Manual
   if (emailInput === "admin" && passwordInput === "123") {
     ditemukan = true;
   } 
-  // B. Pengecekan Akun dari database JSON (Hanya dicek jika array JSON ada isinya)
+  // Pengecekan Akun dari database JSON
   else if (user && user.length > 0) {
     for (let i = 0; i < user.length; i++) {
       if (user[i] && user[i].email === emailInput && user[i].password === passwordInput) {
@@ -54,10 +51,11 @@ async function login() {
     }
   }
 
-  // 3. Aksi penentuan setelah pengecekan status login
+  // Action setelah login berhasil
   if (ditemukan) {
     localStorage.setItem("isLoggedIn", "true");
-    window.location.href = "index.html"; // Berpindah ke home utama
+    // Diarahkan langsung ke halaman produk utama di luar folder
+    window.location.href = "product.html"; 
   } else {
     if (messageDiv) {
       messageDiv.innerHTML = "<span class='text-red-500 text-xs font-medium'>Email atau Password salah!</span>";
@@ -65,7 +63,7 @@ async function login() {
   }
 }
 
-// 4. Otomatisasi Tombol Enter pada Form Login
+// Otomatisasi Tombol Enter pada Form Login
 document.addEventListener('DOMContentLoaded', function() {
   const emailField = document.getElementById("email");
   const passwordField = document.getElementById("password");
