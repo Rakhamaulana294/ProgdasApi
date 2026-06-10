@@ -247,6 +247,8 @@
       font-size: 14px; font-weight: 600;
       padding: 14px 36px; cursor: pointer;
       transition: background 0.2s;
+      text-decoration: none;
+      display: inline-block;
     }
     .btn-modal-close:hover { background: #2d2926; }
 
@@ -269,21 +271,21 @@
       <div class="modal-icon">🎉</div>
       <h2>Pesanan Diterima!</h2>
       <p>Terima kasih telah berbelanja di ThanksinsomniaStore. Pesananmu sedang kami proses dengan penuh kasih.</p>
-      <a href="index.html" class="btn-modal-close" onclick="closeModal()">Lanjutkan Belanja</a>
+      <a href="product.html" class="btn-modal-close" onclick="closeModal()">Lanjutkan Belanja</a>
     </div>
   </div>
 
   <header>
     <nav>
-      <a href="index.html" class="logo">Thanksinsomnia<span>.</span></a>
-      <a href="index.html" class="btn-back">
+      <a href="product.html" class="logo">Thanksinsomnia<span>.</span></a>
+      <a href="product.html" class="btn-back">
         ← Lanjut Belanja
       </a>
     </nav>
   </header>
 
   <div class="breadcrumb">
-    <a href="index.html">Home</a>
+    <a href="product.html">Home</a>
     <span class="breadcrumb-sep">›</span>
     <span>Keranjang</span>
   </div>
@@ -294,8 +296,7 @@
   </div>
 
   <div class="cart-wrap" id="cart-wrap">
-    <!-- Rendered by JS -->
-  </div>
+    </div>
 
   <script>
     'use strict';
@@ -364,7 +365,7 @@
             <div class="empty-icon">🛍️</div>
             <h2>Keranjang masih kosong</h2>
             <p>Yuk, mulai pilih produk favoritmu!</p>
-            <a href="index.html" class="btn-shop">← Mulai Belanja</a>
+            <a href="product.html" class="btn-shop">← Mulai Belanja</a>
           </div>`;
         return;
       }
