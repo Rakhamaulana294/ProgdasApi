@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keranjang – ThanksinsomniaStore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f7f5f2;
+      --surface: #ffffff;
+      --ink: #1a1714;
+      --ink-muted: #6b6560;
+      --accent: #c8a96e;
+      --accent-dark: #a8874a;
+      --border: #e8e4de;
+      --radius: 16px;
+      --danger: #e05252;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+    /* ── NAVBAR ── */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    nav {
+      max-width: 1280px; margin: 0 auto; padding: 0 24px;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-family: 'DM Serif Display', serif; font-size: 1.25rem; color: var(--ink); text-decoration: none; }
+    .logo span { color: var(--accent); }
+    .btn-back {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--ink-muted); text-decoration: none;
+      font-size: 13px; font-weight: 600;
+      padding: 8px 16px; border-radius: 50px;
+      border: 1.5px solid var(--border); background: var(--surface);
+      transition: all 0.2s;
+    }
+    .btn-back:hover { border-color: var(--ink); color: var(--ink); }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      max-width: 1280px; margin: 0 auto; padding: 20px 24px 0;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--ink-muted);
+    }
+    .breadcrumb a { color: var(--ink-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--ink); }
+    .breadcrumb-sep { opacity: 0.4; }
+
+    /* ── PAGE TITLE ── */
+    .page-header {
+      max-width: 1280px; margin: 0 auto;
+      padding: 28px 24px 0;
+    }
+    .page-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .page-header p { font-size: 13px; color: var(--ink-muted); }
+
+    /* ── CART LAYOUT ── */
+    .cart-wrap {
+      max-width: 1280px; margin: 0 auto;
+      padding: 28px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* ── CART ITEMS ── */
+    .cart-items { display: flex; flex-direction: column; gap: 12px; }
+
+    .cart-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      transition: box-shadow 0.2s;
+    }
+    .cart-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+
+    .item-img {
+      width: 88px; height: 88px;
+      background: #f0ede8;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px; flex-shrink: 0;
+    }
+    .item-img img { max-width: 100%; max-height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+
+    .item-info { flex: 1; min-width: 0; }
+    .item-name {
+      font-size: 14px; font-weight: 600;
+      margin-bottom: 4px; color: var(--ink);
+    }
+    .item-price {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+    .item-unit-price {
+      font-size: 11px;
+      color: var(--ink-muted);
+      font-weight: 400;
+      margin-left: 4px;
+    }
+
+    .item-controls {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .qty-ctrl {
+      display: flex; align-items: center;
+      border: 1.5px solid var(--border); border-radius: 50px;
+      overflow: hidden; background: var(--bg);
+    }
+    .qty-ctrl button {
+      border: none; background: none; cursor: pointer;
+      width: 36px; height: 36px; font-size: 16px; font-weight: 300;
+      color: var(--ink-muted); transition: background 0.15s;
+    }
+    .qty-ctrl button:hover { background: var(--border); }
+    .qty-ctrl span {
+      min-width: 32px; text-align: center; font-size: 14px; font-weight: 600;
+    }
+    .btn-remove {
+      border: none; background: none; cursor: pointer;
+      color: var(--border); font-size: 18px; line-height: 1;
+      padding: 6px; border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .btn-remove:hover { color: var(--danger); background: rgba(224,82,82,0.06); }
+
+    /* ── EMPTY STATE ── */
+    .empty-cart {
+      text-align: center; padding: 80px 24px; color: var(--ink-muted);
+      grid-column: 1 / -1;
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty-cart h2 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--ink); margin-bottom: 8px; }
+    .empty-cart p { font-size: 14px; margin-bottom: 28px; }
+    .btn-shop {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--ink); color: white; text-decoration: none;
+      padding: 13px 28px; border-radius: 50px; font-weight: 600; font-size: 14px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-shop:hover { background: #2d2926; transform: translateY(-1px); }
+
+    /* ── ORDER SUMMARY ── */
+    .summary-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      position: sticky;
+      top: 88px;
+    }
+    .summary-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem; margin-bottom: 24px;
+    }
+    .summary-row {
+      display: flex; justify-content: space-between;
+      align-items: center; font-size: 13px; color: var(--ink-muted);
+      margin-bottom: 12px;
+    }
+    .summary-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .summary-total {
+      display: flex; justify-content: space-between;
+      align-items: center;
+    }
+    .summary-total .label { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .summary-total .amount {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem; color: var(--ink);
+    }
+
+    .btn-checkout {
+      width: 100%; margin-top: 24px;
+      background: var(--ink); color: white; border: none;
+      border-radius: 50px; font-family: inherit;
+      font-size: 15px; font-weight: 600;
+      padding: 16px 24px; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-checkout:hover { background: #2d2926; transform: translateY(-1px); }
+    .btn-checkout:disabled { background: var(--border); color: var(--ink-muted); cursor: not-allowed; transform: none; }
+
+    .btn-clear {
+      width: 100%; margin-top: 12px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 50px; font-family: inherit;
+      font-size: 13px; font-weight: 600; color: var(--ink-muted);
+      padding: 12px 24px; cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-clear:hover { border-color: var(--danger); color: var(--danger); }
+
+    .secure-note {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; margin-top: 16px;
+      font-size: 11px; color: var(--ink-muted);
+    }
+    .secure-note svg { width: 13px; height: 13px; color: var(--accent); }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink); color: white;
+      font-size: 13px; font-weight: 500;
+      padding: 12px 20px; border-radius: 50px; z-index: 9999;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── CHECKOUT MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 9998; display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: 24px; padding: 40px 36px; max-width: 420px; width: 100%;
+      text-align: center; position: relative;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-icon { font-size: 3rem; margin-bottom: 16px; }
+    .modal h2 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 10px; }
+    .modal p { font-size: 14px; color: var(--ink-muted); line-height: 1.6; margin-bottom: 28px; }
+    .btn-modal-close {
+      background: var(--ink); color: white; border: none;
+      border-radius: 50px; font-family: inherit;
+      font-size: 14px; font-weight: 600;
+      padding: 14px 36px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-modal-close:hover { background: #2d2926; }
+
+    @media (max-width: 768px) {
+      .cart-wrap { grid-template-columns: 1fr; }
+      .summary-box { position: relative; top: 0; }
+      .cart-item { flex-wrap: wrap; }
+    }
+    @media (max-width: 480px) {
+      .item-img { width: 72px; height: 72px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast"></div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-icon">🎉</div>
+      <h2>Pesanan Diterima!</h2>
+      <p>Terima kasih telah berbelanja di ThanksinsomniaStore. Pesananmu sedang kami proses dengan penuh kasih.</p>
+      <a href="index.html" class="btn-modal-close" onclick="closeModal()">Lanjutkan Belanja</a>
+    </div>
+  </div>
+
+  <header>
+    <nav>
+      <a href="index.html" class="logo">Thanksinsomnia<span>.</span></a>
+      <a href="index.html" class="btn-back">
+        ← Lanjut Belanja
+      </a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="index.html">Home</a>
+    <span class="breadcrumb-sep">›</span>
+    <span>Keranjang</span>
+  </div>
+
+  <div class="page-header">
+    <h1>Keranjang Belanja</h1>
+    <p id="cart-subtitle">0 item dipilih</p>
+  </div>
+
+  <div class="cart-wrap" id="cart-wrap">
+    <!-- Rendered by JS -->
+  </div>
+
+  <script>
+    'use strict';
+
+    function fmt(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    function safe(v) { const n = parseFloat(v); return isFinite(n) && n >= 0 ? n : 0; }
+    function getCart() { try { return JSON.parse(localStorage.getItem('keranjang')) || []; } catch { return []; } }
+    function saveCart(c) { localStorage.setItem('keranjang', JSON.stringify(c)); render(); }
+
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function changeQty(id, delta) {
+      const cart = getCart();
+      const idx  = cart.findIndex(c => c.id == id);
+      if (idx === -1) return;
+      cart[idx].qty += delta;
+      if (cart[idx].qty <= 0) cart.splice(idx, 1);
+      saveCart(cart);
+    }
+
+    function removeItem(id) {
+      saveCart(getCart().filter(c => c.id != id));
+      showToast('Item dihapus dari keranjang');
+    }
+
+    function clearCart() {
+      if (!getCart().length) return;
+      if (confirm('Hapus semua item dari keranjang?')) {
+        saveCart([]);
+        showToast('Keranjang dikosongkan');
+      }
+    }
+
+    function checkout() {
+      const cart = getCart();
+      if (!cart.length) return;
+      saveCart([]);
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+    }
+
+    function render() {
+      const cart = getCart();
+      const totalQty   = cart.reduce((s,i) => s + i.qty, 0);
+      const totalPrice = cart.reduce((s,i) => s + (safe(i.price) * i.qty), 0);
+      const ongkir     = totalPrice > 200000 ? 0 : 15000;
+
+      document.getElementById('cart-subtitle').textContent = `${totalQty} item dipilih`;
+      const wrap = document.getElementById('cart-wrap');
+
+      if (!cart.length) {
+        wrap.innerHTML = `
+          <div class="empty-cart">
+            <div class="empty-icon">🛍️</div>
+            <h2>Keranjang masih kosong</h2>
+            <p>Yuk, mulai pilih produk favoritmu!</p>
+            <a href="index.html" class="btn-shop">← Mulai Belanja</a>
+          </div>`;
+        return;
+      }
+
+      const itemsHtml = cart.map(item => {
+        const lineTotal = safe(item.price) * item.qty;
+        return `
+          <div class="cart-item" data-id="${item.id}">
+            <div class="item-img">
+              <img src="${esc(item.image || '')}" alt="${esc(item.name || '')}"
+                onerror="this.src='https://placehold.co/80x80?text=?'">
+            </div>
+            <div class="item-info">
+              <div class="item-name">${esc(item.name || '')}</div>
+              <div class="item-price">
+                ${fmt(lineTotal)}
+                ${item.qty > 1 ? `<span class="item-unit-price">@ ${fmt(safe(item.price))}</span>` : ''}
+              </div>
+              <div class="item-controls">
+                <div class="qty-ctrl">
+                  <button onclick="changeQty(${item.id}, -1)" aria-label="Kurangi">−</button>
+                  <span>${item.qty}</span>
+                  <button onclick="changeQty(${item.id}, +1)" aria-label="Tambah">+</button>
+                </div>
+                <button class="btn-remove" onclick="removeItem(${item.id})" aria-label="Hapus">✕</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      wrap.innerHTML = `
+        <div class="cart-items">${itemsHtml}</div>
+        <div>
+          <div class="summary-box">
+            <div class="summary-title">Ringkasan Pesanan</div>
+            <div class="summary-row">
+              <span>Subtotal (${totalQty} item)</span>
+              <span>${fmt(totalPrice)}</span>
+            </div>
+            <div class="summary-row">
+              <span>Ongkos kirim</span>
+              <span>${ongkir === 0 ? '<span style="color:#5cb85c;font-weight:600">Gratis</span>' : fmt(ongkir)}</span>
+            </div>
+            ${ongkir > 0 ? `<div style="font-size:11px;color:var(--ink-muted);margin-bottom:12px">Gratis ongkir untuk pembelian di atas ${fmt(200000)}</div>` : ''}
+            <hr class="summary-divider">
+            <div class="summary-total">
+              <span class="label">Total Pembayaran</span>
+              <span class="amount">${fmt(totalPrice + ongkir)}</span>
+            </div>
+            <button class="btn-checkout" onclick="checkout()">Bayar Sekarang →</button>
+            <button class="btn-clear" onclick="clearCart()">Kosongkan Keranjang</button>
+            <div class="secure-note">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              Transaksi aman & terpercaya
+            </div>
+          </div>
+        </div>`;
+    }
+
+    render();
+  </script>
+</body>
+</html>

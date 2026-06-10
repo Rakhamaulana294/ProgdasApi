@@ -1,0 +1,20 @@
+{
+  "name": "apiprogdas",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "tailwindcss -i ./css/style.css -o ./dist/output.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.2.4"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.3.0"
+  }
+}

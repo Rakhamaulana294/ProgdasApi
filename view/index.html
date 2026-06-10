@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thanksinsomnia</title>
+
+    <link href="../dist/output.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+      body { font-family: "Inter", sans-serif; background-color: #fcfcfc; }
+
+      /* ── Cart sidebar ─────────────────────────────────── */
+      #cart-sidebar {
+        position: fixed;
+        top: 0;
+        right: -440px;         
+        width: 100%;
+        max-width: 420px;
+        height: 100vh;
+        background: #fff;
+        box-shadow: -10px 0 30px rgba(0,0,0,.05);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        transition: transform .4s cubic-bezier(.25,1,.5,1);
+      }
+      #cart-sidebar.open { transform: translateX(-440px); }
+
+      @media (max-width: 440px) {
+        #cart-sidebar         { right: -100%; max-width: 100%; }
+        #cart-sidebar.open    { transform: translateX(-100%); }
+      }
+
+      /* ── Custom scrollbar ─────────────────────────────── */
+      .custom-scroll::-webkit-scrollbar       { width: 6px; }
+      .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+      .custom-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+      /* ── Modal scale transition ───────────────────────── */
+      #detail { transition: transform .15s ease; }
+    </style>
+  </head>
+
+  <body class="text-gray-800 antialiased">
+
+    <div
+      id="cart-overlay"
+      class="fixed inset-0 bg-black/40 z-[999] opacity-0 pointer-events-none transition-opacity duration-300"
+      onclick="closeCart()">
+    </div>
+
+    <aside id="cart-sidebar" aria-label="Keranjang Belanja">
+
+      <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-900 text-white">
+        <div class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          <h2 class="text-base font-bold tracking-wide">Keranjang Belanja</h2>
+          <span id="cart-count-badge"
+            class="bg-white text-gray-900 text-xs font-bold px-2 py-0.5 rounded-full ml-1">0</span>
+        </div>
+        <button onclick="closeCart()" class="text-gray-400 hover:text-white transition-colors p-1" aria-label="Tutup keranjang">✕</button>
+      </div>
+
+      <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll"></div>
+
+      <div class="p-6 border-t border-gray-100 bg-gray-50/50">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Total Pembayaran</span>
+          <span id="cart-total-price" class="text-lg font-bold text-gray-900">$0.00</span>
+        </div>
+        <button
+          onclick="checkout()"
+          class="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98]">
+          Lanjutkan ke Checkout
+        </button>
+      </div>
+    </aside>
+
+    <div
+      id="toast"
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 translate-y-24 bg-gray-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg z-[2000] transition-transform duration-300 ease-out flex items-center gap-2"
+      role="status"
+      aria-live="polite">
+      <span id="toast-text"></span>
+    </div>
+
+    <header class="sticky top-0 bg-white/90 backdrop-blur-md border-b border-gray-100 z-50">
+      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
+
+        <h1 class="text-xl font-bold tracking-tight text-gray-900">ThanksinsomniaStore</h1>
+
+        <div class="flex items-center gap-3">
+          <button
+            id="btn-open-cart"
+            onclick="openCart()"
+            class="relative flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl font-medium text-xs text-gray-700 transition-all"
+            aria-label="Buka keranjang">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184
+                   1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            Keranjang
+            <span id="navbar-cart-count"
+              class="bg-gray-900 text-white text-[10px] font-bold h-4 min-w-[16px] px-1 flex items-center justify-center rounded-full">0</span>
+          </button>
+        </div>
+
+      </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
+        <button 
+          onclick="filterCategory('all')" 
+          data-category="all"
+          class="filter-btn px-4 py-2 border rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 bg-gray-900 text-white border-gray-900">
+          Semua Produk
+        </button>
+        <button 
+          onclick="filterCategory('jeans')" 
+          data-category="jeans"
+          class="filter-btn px-4 py-2 border rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-gray-600 border-gray-200 hover:bg-gray-50">
+          Jeans
+        </button>
+        <button 
+          onclick="filterCategory('t-shirt')" 
+          data-category="t-shirt"
+          class="filter-btn px-4 py-2 border rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-gray-600 border-gray-200 hover:bg-gray-50">
+          T-Shirt
+        </button>
+        <button 
+          onclick="filterCategory('long sleeve')" 
+          data-category="long sleeve"
+          class="filter-btn px-4 py-2 border rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-gray-600 border-gray-200 hover:bg-gray-50">
+          Long Sleeve
+        </button>
+      </div>
+
+      <div id="output" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+      
+    </main>
+
+    <div
+      id="popup"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] hidden justify-center items-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Detail produk">
+      <div id="detail" class="bg-white rounded-2xl max-w-xl w-full p-6 relative shadow-xl scale-95"></div>
+    </div>
+
+    <script src="../scripts/product.js" defer></script>
+
+  </body>
+</html>
