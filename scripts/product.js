@@ -69,18 +69,8 @@ async function fetchProducts() {
     const data = await res.json(); 
     if (!Array.isArray(data)) throw new Error('Format respons tidak valid.');
 
-    if (data.length === 0) {
-      box.innerHTML = `
-        <div class="col-span-full flex flex-col items-center justify-center py-24 gap-3 text-gray-400">
-          <p class="text-4xl">📦</p>
-          <p class="text-sm font-medium">Tidak ada produk ditemukan.</p>
-        </div>`;
-      return;
-    }
-
     allProducts = data; 
     filterCategory('all'); 
-
   } catch (err) {
     console.error('[product.js] fetchProducts gagal:', err); 
     box.innerHTML = `
@@ -98,11 +88,11 @@ function filterCategory(categoryName) {
   const buttons = document.querySelectorAll('.filter-btn');
   buttons.forEach(btn => {
     if (btn.getAttribute('data-category') === categoryName) {
-      btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200', 'hover:bg-gray-50');
       btn.classList.add('bg-gray-900', 'text-white', 'border-gray-900');
+      btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
     } else {
       btn.classList.remove('bg-gray-900', 'text-white', 'border-gray-900');
-      btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200', 'hover:bg-gray-50');
+      btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
     }
   });
 
@@ -124,15 +114,6 @@ function renderProducts(data) {
   if (!box) return;
   box.innerHTML = ''; 
 
-  if (data.length === 0) {
-    box.innerHTML = `
-      <div class="col-span-full flex flex-col items-center justify-center py-16 text-gray-400">
-        <p class="text-3xl">🔍</p>
-        <p class="text-xs mt-2">Tidak ada produk dalam kategori ini.</p>
-      </div>`;
-    return;
-  }
-
   data.forEach(function (item) {
     const price     = safePrice(col(item, 'price')); 
     const name      = col(item, 'name',  'Produk Tanpa Nama'); 
@@ -142,6 +123,7 @@ function renderProducts(data) {
     const card = document.createElement('div'); 
     card.className = 'bg-white border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md transition-all duration-200';
 
+    // Perubahan di sini: Tombol Detail sekarang mengarahkan ke halaman detail.html
     card.innerHTML = `
       <div class="w-full h-44 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden mb-4 p-2">
         <img src="${escHtml(image)}" alt="${escHtml(name)}" class="max-h-[140px] max-w-full object-contain mix-blend-multiply" onerror="this.src='https://placehold.co/150x150?text=No+Image'" loading="lazy">
@@ -152,127 +134,55 @@ function renderProducts(data) {
           <p class="text-sm font-bold text-gray-950 mb-4">${formatHarga(price)}</p>
         </div>
         <div class="grid grid-cols-5 gap-2">
-          <button onclick="openDetail(${itemId})" class="col-span-2 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl text-[11px] font-medium text-gray-600 text-center transition-colors">Detail</button>
+          <a href="detail.html?id=${itemId}" class="col-span-2 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl text-[11px] font-medium text-gray-600 text-center transition-colors flex items-center justify-center">Detail</a>
           <button onclick="addToCart(${itemId})" class="col-span-3 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-[11px] font-medium transition-colors text-center">+ Keranjang</button>
         </div>
       </div>`;
-
     box.appendChild(card); 
   });
 }
 
-// ── 6. LOGIKA POPUP DETAIL MODAL ──
+// ── 6. LOGIKA PINDAH HALAMAN (DETAIL TIDAK LAGI MODAL) ──
+// Fungsi openDetail sekarang hanya mengarahkan halaman
 function openDetail(id) {
-  const product = allProducts.find(p => col(p, 'id') == id);
-  if (!product) return;
-
-  const modal = document.getElementById('popup');
-  const detailBox = document.getElementById('detail');
-  if (!modal || !detailBox) return;
-
-  detailBox.innerHTML = `
-    <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-900 text-lg">✕</button>
-    <div class="flex flex-col md:flex-row gap-6 mt-4">
-      <div class="w-full md:w-1/2 h-52 bg-gray-50 flex items-center justify-center rounded-xl overflow-hidden p-2">
-        <img src="${escHtml(col(product, 'image'))}" class="max-h-[180px] object-contain mix-blend-multiply" onerror="this.src='https://placehold.co/150x150?text=No+Image'">
-      </div>
-      <div class="flex-1 flex flex-col justify-between">
-        <div>
-          <span class="text-[10px] bg-gray-100 px-2 py-1 rounded-md font-bold uppercase tracking-wider text-gray-500">${escHtml(col(product, 'category', 'General'))}</span>
-          <h2 class="text-base font-bold text-gray-900 mt-2">${escHtml(col(product, 'name'))}</h2>
-          <p class="text-lg font-extrabold text-gray-900 mt-1">${formatHarga(safePrice(col(product, 'price')))}</p>
-          <p class="text-xs text-gray-500 mt-3 leading-relaxed">${escHtml(col(product, 'description', 'Tidak ada deskripsi.'))}</p>
-        </div>
-        <button onclick="addToCart(${id}); closeDetailModal();" class="w-full mt-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs font-semibold transition-colors">Tambah ke Keranjang</button>
-      </div>
-    </div>`;
-
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
+  window.location.href = "detail.html?id=" + id;
 }
 
-function closeDetailModal() {
-  const modal = document.getElementById('popup');
-  if (modal) {
-    modal.classList.remove('flex');
-    modal.classList.add('hidden');
-  }
-}
-
-// ── 7. FIX: FUNGSI PINDAH KE HALAMAN CART.HTML ──
-function openCart() {
-  window.location.href = 'cart.html'; // Melempar langsung ke halaman full cart.html
-}
+// ── 7. FUNGSI KERANJANG ──
+function openCart() { window.location.href = 'cart.html'; }
 
 function addToCart(id) {
-  if (!allProducts.length) return; 
-
   const product = allProducts.find(p => col(p, 'id') == id);
   if (!product) return;
-
-  const cart  = getCart(); 
+  let cart = getCart(); 
   const index = cart.findIndex(c => c.id == id);
-
-  if (index !== -1) {
-    cart[index].qty += 1;
-  } else {
-    cart.push({ 
-      id: id, 
-      name: col(product, 'name', 'Produk Tanpa Nama'), 
-      price: safePrice(col(product, 'price')), 
-      image: col(product, 'image'), 
-      qty: 1 
-    }); 
-  }
-
+  if (index !== -1) cart[index].qty += 1;
+  else cart.push({ id: id, name: col(product, 'name'), price: safePrice(col(product, 'price')), image: col(product, 'image'), qty: 1 });
   saveCart(cart);
   updateCartBadge(); 
   showToast('Produk dimasukkan ke keranjang'); 
 }
 
-function getCart() {
-  try { return JSON.parse(localStorage.getItem('keranjang')) || []; }
-  catch { return []; } 
-}
-
-function saveCart(cart) {
-  try { localStorage.setItem('keranjang', JSON.stringify(cart)); }
-  catch (e) { console.error(e); }
-}
-
+function getCart() { try { return JSON.parse(localStorage.getItem('keranjang')) || []; } catch { return []; } }
+function saveCart(cart) { localStorage.setItem('keranjang', JSON.stringify(cart)); }
 function updateCartBadge() {
   const total = getCart().reduce((s, i) => s + i.qty, 0);
   const badgeNav = document.getElementById('navbar-cart-count');
   if (badgeNav) badgeNav.textContent = total;
 }
 
-let _toastTimer = null;
 function showToast(message) {
-  const toast   = document.getElementById('toast');
+  const toast = document.getElementById('toast');
   const toastTx = document.getElementById('toast-text');
   if (!toast || !toastTx) return;
-
   toastTx.textContent = message;
   toast.classList.remove('translate-y-24');
   toast.classList.add('translate-y-0');
-  
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(function () {
-    toast.classList.remove('translate-y-0');
-    toast.classList.add('translate-y-24');
-  }, 2000);
+  setTimeout(() => { toast.classList.remove('translate-y-0'); toast.classList.add('translate-y-24'); }, 2000);
 }
 
-function safePrice(val) {
-  const n = typeof val === 'number' ? val : parseFloat(val);
-  return isFinite(n) && n >= 0 ? n : 0;
-}
-
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+function safePrice(val) { const n = parseFloat(val); return isFinite(n) ? n : 0; }
+function escHtml(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
 document.addEventListener('DOMContentLoaded', function () {
   updateCartBadge(); 
